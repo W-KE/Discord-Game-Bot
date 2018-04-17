@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 
-import undercover
 
 description = '''An example bot to showcase the discord.ext.commands extension
 module.
@@ -83,7 +82,7 @@ async def move(ctx, option):
             return
 
 
-@commands.command(pass_context=True)
+@bot.command(pass_context=True)
 async def quickpoll(ctx, question, *options: str):
     if len(options) <= 1:
         await bot.say('You need more than one option to make a poll!')
@@ -108,7 +107,7 @@ async def quickpoll(ctx, question, *options: str):
     await bot.edit_message(react_message, embed=embed)
 
 
-@commands.command(pass_context=True)
+@bot.command(pass_context=True)
 async def tally(ctx, id):
     poll_message = await bot.get_message(ctx.message.channel, id)
     if not poll_message.embeds:
