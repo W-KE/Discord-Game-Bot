@@ -27,9 +27,10 @@ async def on_ready():
 
 @bot.command(pass_context=True)
 async def start(ctx, name="谁是卧底"):
-    global owner, preparing, players, game, min_players, poll_id
+    global owner, preparing, players, game, min_players, poll_id, playing
     if not preparing and not playing:
         preparing = True
+        playing = False
         game = None
         poll_id = ""
         if name == "":
@@ -51,6 +52,8 @@ async def start(ctx, name="谁是卧底"):
                 game = undercover.Game(players, 2)
             else:
                 game = undercover.Game(players, 3)
+            preparing = False
+            playing = True
             await bot.say("本局游戏共有{}人参加".format(len(players)))
         else:
             await bot.say("人数不足")
@@ -91,7 +94,7 @@ async def move(ctx, option):
 async def poll(question="谁是卧底?", *options: str):
     global poll_id
     if len(options) == 0:
-        options = [i.user.mention for i in game.players]
+        options = [i.user.mention for i in game.players if not i.out]
     if len(options) <= 1:
         await bot.say("至少需要两人开始投票")
         return
@@ -136,10 +139,36 @@ async def tally(ctx):
                     tally[reaction.emoji] += 1
                     voters.append(reactor.id)
 
-    output = '"{}"投票结果:\n'.format(embed['title']) + '\n'.join(['{}: {}'.format(opt_dict[key], tally[key]) for key in tally.keys()])
+    output = '"{}"投票结果:\n'.format(embed['title'])
+    max_player = 0
+    max_poll = 0
+    max_count = 0
     for key in tally.keys():
+        if tally[key] > max_poll:
+            max_poll = tally[key]
+            max_count = 1
+            max_player = key
+        elif tally[key] == max_poll:
+            max_count += 1
         output += "\n{}: {}".format(opt_dict[key], tally[key])
     await bot.say(output)
+    if max_count > 1:
+        await bot.say("投票相同，待定")
+    else:
+        for i in game.players:
+            if not i.out:
+                if i.user.mention == opt_dict[max_player]:
+                    i.out = True
+                    if i.uc:
+                        await bot.say("卧底 {} 被淘汰\n卧底词：{}\n平民词：{}\n平民获胜".format(opt_dict[max_player], game.undercover, game.normal))
+                        return
+        await bot.say("{} 被淘汰".format(opt_dict[max_player]))
+    alive = [i.user.mention for i in game.players if not i.out]
+    if len(alive) <= game.win:
+        for i in alive:
+            if i.uc:
+
+                await bot.say("卧底词：{}\n平民词：{}\n卧底 {} 获胜".format(game.undercover, game.normal, i.user.mention))
 
 
 @bot.group(pass_context=True)
