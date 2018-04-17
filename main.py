@@ -82,9 +82,9 @@ async def move(ctx, option):
 
 
 @bot.command(pass_context=True)
-async def poll(ctx, question, options):
+async def poll(ctx, question, *options: str):
     emoji = [":dog:", ":cat:", ":mouse:", ":hamster:", ":rabbit:", ":bear:", ":panda_face:", ":koala:", ":tiger:",
-             ":lion_face:", ":cow:", ":pig:", ":frog:", ":octopus::chicken::wolf:", ":boar:"]
+             ":lion_face:", ":cow:", ":pig:", ":frog:", ":octopus:", ":chicken:", ":wolf:", ":boar:"]
     # reactions = []
     # for i in game.players:
     #     if not i.out:
