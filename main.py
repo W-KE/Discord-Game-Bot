@@ -85,22 +85,24 @@ async def move(ctx, option):
 async def poll(ctx, question, *options: str):
     emoji = [":dog:", ":cat:", ":mouse:", ":hamster:", ":rabbit:", ":bear:", ":panda_face:", ":koala:", ":tiger:",
              ":lion_face:", ":cow:", ":pig:", ":frog:", ":octopus:", ":chicken:", ":wolf:", ":boar:"]
-    # reactions = []
-    # for i in game.players:
-    #     if not i.out:
-    #         reactions.append(i.user.mention)
     if len(options) <= 1:
         await bot.say('You need more than one option to make a poll!')
         return
     if len(options) > 10:
         await bot.say('You cannot make a poll for more than 10 things!')
         return
+
+    if len(options) == 2 and options[0] == 'yes' and options[1] == 'no':
+        reactions = ['✅', '❌']
+    else:
+        reactions = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
+        reactions = emoji
     description = []
     for x, option in enumerate(options):
-        description += '\n {} {}'.format(emoji[x], option)
+        description += '\n {} {}'.format(reactions[x], option)
     embed = discord.Embed(title=question, description=''.join(description))
     react_message = await bot.say(embed=embed)
-    for reaction in emoji[:len(options)]:
+    for reaction in reactions[:len(options)]:
         await bot.add_reaction(react_message, reaction)
     embed.set_footer(text='Poll ID: {}'.format(react_message.id))
     await bot.edit_message(react_message, embed=embed)
