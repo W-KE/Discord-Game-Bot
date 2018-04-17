@@ -169,7 +169,7 @@ async def tally(ctx):
                         await bot.say("卧底 {} 被淘汰\n卧底词：{}\n平民词：{}\n平民获胜".format(opt_dict[max_player], game.undercover, game.normal))
                         return
         await bot.say("{} 被淘汰".format(opt_dict[max_player]))
-    alive = [i.user.mention for i in game.players if not i.out]
+    alive = [i for i in game.players if not i.out]
     if len(alive) <= game.win:
         for i in alive:
             if i.uc:
