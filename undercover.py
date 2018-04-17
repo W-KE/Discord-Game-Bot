@@ -155,7 +155,7 @@ class Game:
         self.players = []
         self.win = win
         word = random.choice(word_dict).split("-")
-        rand = random.randint(0,1):
+        rand = random.randint(0,1)
         if rand == 0:
             self.normal = word[0]
             self.undercover = word[1]
