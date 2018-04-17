@@ -154,4 +154,4 @@ async def _bot():
     await bot.say('Yes, the Poker is cool.')
 
 
-bot.run('NDM0MjA2ODc0MDI4NjA1NDQw.DbMOVw.4Hu__7h6bYHQtJYbkggAwBFtG7E')
+bot.run('NDM1NjU5MjUwNDcyMzIxMDI0.DbcK0Q.0HLUlvcDpuDXN8a8TZUXF14bH1w')
