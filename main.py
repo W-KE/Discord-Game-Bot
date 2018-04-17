@@ -55,6 +55,8 @@ async def start(ctx, name="谁是卧底"):
             preparing = False
             playing = True
             await bot.say("本局游戏共有{}人参加".format(len(players)))
+            for player in game.players:
+                await bot.send_message(player.user, player.word)
         else:
             await bot.say("人数不足")
     else:
