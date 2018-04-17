@@ -155,13 +155,19 @@ class Game:
         self.players = []
         self.win = win
         word = random.choice(word_dict).split("-")
-        normal, undercover = word
+        rand = random.randint(0,1):
+        if rand == 0:
+            self.normal = word[0]
+            self.undercover = word[1]
+        else:
+            self.normal = word[1]
+            self.undercover = word[0]
         uc = random.randint(0, len(players) - 1)
         for i in range(len(players)):
             if i == uc:
-                self.players.append(Player(players[i], undercover, True))
+                self.players.append(Player(players[i], self.undercover, True))
             else:
-                self.players.append(Player(players[i], normal, False))
+                self.players.append(Player(players[i], self.normal, False))
 
     def check(self):
         count = 0
