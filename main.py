@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+import undercover
+
 description = '''An example bot to showcase the discord.ext.commands extension
 module.
 
@@ -12,6 +14,7 @@ playing = False
 players = []
 min_players = 0
 game = None
+poll_id = ""
 
 
 @bot.event
@@ -23,19 +26,22 @@ async def on_ready():
 
 
 @bot.command(pass_context=True)
-async def start(ctx, name=""):
-    global owner, preparing, players, game, min_players
+async def start(ctx, name="谁是卧底"):
+    global owner, preparing, players, game, min_players, poll_id
     if not preparing and not playing:
+        preparing = True
+        game = None
+        poll_id = ""
         if name == "":
-            await bot.say("人数不足")
+            await bot.say("用法\n$start 谁是卧底")
             return
         owner = ctx.message.author
         preparing = True
         players = [owner]
         if name == "谁是卧底":
-            min_players = 3
+            min_players = 2
         await bot.say(
-            "{} 想要开始游戏，输入 $join 加入，玩家加入后 {} 输入 $go 开始".format(ctx.message.author.mention, ctx.message.author.mention))
+            "{} 想要开始游戏，输入 $join 加入，玩家加入后 {} 输入 $start 开始".format(ctx.message.author.mention, ctx.message.author.mention))
     elif preparing and not playing:
         if ctx.message.author != owner:
             await bot.say("只有主持人可以开始游戏")
@@ -81,13 +87,16 @@ async def move(ctx, option):
             return
 
 
-@bot.command(pass_context=True)
-async def poll(ctx, question, *options: str):
+@bot.command()
+async def poll(question="谁是卧底?", *options: str):
+    global poll_id
+    if len(options) == 0:
+        options = [i.user.mention for i in game.players]
     if len(options) <= 1:
-        await bot.say('You need more than one option to make a poll!')
+        await bot.say("至少需要两人开始投票")
         return
     if len(options) > 10:
-        await bot.say('You cannot make a poll for more than 10 things!')
+        await bot.say("最多十人参加投票")
         return
     reactions = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣', '8⃣', '9⃣', '🔟']
     description = []
@@ -95,16 +104,16 @@ async def poll(ctx, question, *options: str):
         description += '\n{} {}'.format(reactions[x], option)
     embed = discord.Embed(title=question, description="".join(description))
     react_message = await bot.say(embed=embed)
-    votes = []
     for reaction in reactions[:len(options)]:
-        votes.append(await bot.add_reaction(react_message, reaction))
+        await bot.add_reaction(react_message, reaction)
+    poll_id = react_message.id
     embed.set_footer(text='Poll ID: {}'.format(react_message.id))
-    # await bot.edit_message(react_message, embed=embed)
+    await bot.edit_message(react_message, embed=embed)
 
 
 @bot.command(pass_context=True)
-async def tally(ctx, id):
-    poll_message = await bot.get_message(ctx.message.channel, id)
+async def tally(ctx):
+    poll_message = await bot.get_message(ctx.message.channel, poll_id)
     if not poll_message.embeds:
         return
     embed = poll_message.embeds[0]
@@ -127,8 +136,9 @@ async def tally(ctx, id):
                     tally[reaction.emoji] += 1
                     voters.append(reactor.id)
 
-    output = 'Results of the poll for "{}":\n'.format(embed['title']) + \
-             '\n'.join(['{}: {}'.format(opt_dict[key], tally[key]) for key in tally.keys()])
+    output = '"{}"投票结果:\n'.format(embed['title']) + '\n'.join(['{}: {}'.format(opt_dict[key], tally[key]) for key in tally.keys()])
+    for key in tally.keys():
+        output += "\n{}: {}".format(opt_dict[key], tally[key])
     await bot.say(output)
 
 
