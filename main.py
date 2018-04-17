@@ -83,9 +83,6 @@ async def move(ctx, option):
 
 @bot.command(pass_context=True)
 async def poll(ctx, question, options):
-    if len(options) <= 1:
-        await bot.say('You need more than one option to make a poll!')
-        return
     emoji = [":dog:", ":cat:", ":mouse:", ":hamster:", ":rabbit:", ":bear:", ":panda_face:", ":koala:", ":tiger:",
              ":lion_face:", ":cow:", ":pig:", ":frog:", ":octopus::chicken::wolf:", ":boar:"]
     # reactions = []
