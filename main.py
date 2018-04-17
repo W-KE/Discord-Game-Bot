@@ -40,7 +40,7 @@ async def start(ctx, name="谁是卧底"):
         preparing = True
         players = [owner]
         if name == "谁是卧底":
-            min_players = 2
+            min_players = 3
         await bot.say(
             "{} 想要开始游戏，输入 $join 加入，玩家加入后 {} 输入 $start 开始".format(ctx.message.author.mention, ctx.message.author.mention))
     elif preparing and not playing:
@@ -118,6 +118,7 @@ async def poll(question="谁是卧底?", *options: str):
 
 @bot.command(pass_context=True)
 async def tally(ctx):
+    global playing, preparing, poll_id
     poll_message = await bot.get_message(ctx.message.channel, poll_id)
     if not poll_message.embeds:
         return
@@ -162,6 +163,9 @@ async def tally(ctx):
                 if i.user.mention == opt_dict[max_player]:
                     i.out = True
                     if i.uc:
+                        preparing = False
+                        playing = False
+                        poll_id = ""
                         await bot.say("卧底 {} 被淘汰\n卧底词：{}\n平民词：{}\n平民获胜".format(opt_dict[max_player], game.undercover, game.normal))
                         return
         await bot.say("{} 被淘汰".format(opt_dict[max_player]))
@@ -169,7 +173,9 @@ async def tally(ctx):
     if len(alive) <= game.win:
         for i in alive:
             if i.uc:
-
+                preparing = False
+                playing = False
+                poll_id = ""
                 await bot.say("卧底词：{}\n平民词：{}\n卧底 {} 获胜".format(game.undercover, game.normal, i.user.mention))
 
 
